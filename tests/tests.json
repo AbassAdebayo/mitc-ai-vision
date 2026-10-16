@@ -1,0 +1,93 @@
+[
+  {
+    "name": "Activate the MITC Vision exhibition",
+    "sanity": true,
+    "viewport": "desktop",
+    "covers": [
+      "experience activation",
+      "voice and sound controls",
+      "cinematic opening",
+      "2026 convocation branding",
+      "department credit"
+    ],
+    "description": "Verifies the exhibition activates with MITC branding and the digital host.",
+    "steps": [
+      "Open the MITC Vision application",
+      "Select ACTIVATE EXPERIENCE",
+      "Wait for the opening sequence to complete"
+    ],
+    "expected": "The activation screen disappears and the MITC Vision exhibition opens with the 2026 convocation and ICT department identity. The SEE LIVE CODING control is available only in autonomous mode and opens the coding workspace only after an explicit click; HTML, CSS and JavaScript can be edited and run to update the sandboxed preview."
+  },
+  {
+    "name": "Present Software Engineering as a distinct course choice",
+    "viewport": "desktop",
+    "covers": [
+      "Software Engineering course choice",
+      "software engineering topics",
+      "career pathways",
+      "job outcome caveat"
+    ],
+    "description": "Verifies Software Engineering is pitched as its own selectable course with realistic career directions.",
+    "steps": [
+      "Activate the exhibition",
+      "Trigger the host introduction",
+      "Listen through the Software Engineering sections"
+    ],
+    "expected": "Software Engineering is presented as a separate course, covering .NET/C#, ASP.NET Core, APIs, databases, system design, testing and deployment basics, plus possible career directions without promising employment."
+  },
+  {
+    "name": "Present Web Design as a separate course choice",
+    "viewport": "desktop",
+    "covers": [
+      "Web Design course choice",
+      "HTML CSS JavaScript",
+      "WordPress",
+      "separate course paths"
+    ],
+    "description": "Verifies Web Design is not described as compulsory alongside Software Engineering.",
+    "steps": [
+      "Activate the exhibition",
+      "Trigger the host introduction",
+      "Listen through the Web Design section"
+    ],
+    "expected": "Web Design is presented as a separate selectable course covering HTML, CSS, JavaScript, React, responsive design and WordPress."
+  },
+  {
+    "name": "Welcome visitors without unreliable guest counting",
+    "viewport": "desktop",
+    "covers": [
+      "visitor presence detection",
+      "I see you sensor greeting",
+      "flashy eye sparks on detection",
+      "speech sequence without overlap",
+      "camera presence detection with motion cue",
+      "sensor re-arming after clear absence",
+      "no unreliable guest counter"
+    ],
+    "description": "Verifies the sensor welcomes visitors and the speech sequence does not overlap.",
+    "steps": [
+      "Activate the exhibition with camera access available",
+      "Stand in the camera view during autonomous mode",
+      "Listen to the greeting and course introduction",
+      "Leave the camera view until presence clears",
+      "Re-enter the camera view"
+    ],
+    "expected": "When a person is detected, the host says 'I see you' and completes the welcome before beginning the department introduction. After the full introduction finishes, the presence sensor automatically re-arms and repeats the greeting and introduction if the visitor remains in view; if no visitor is detected, it stays in autonomous scanning mode. It never overlaps an ongoing introduction or shows a guest total."
+  },
+  {
+    "name": "Remain usable without camera access",
+    "viewport": "desktop",
+    "covers": [
+      "camera failure fallback",
+      "offline-first exhibition mode",
+      "audio activation fallback"
+    ],
+    "description": "Verifies the exhibition remains usable if camera access is denied.",
+    "steps": [
+      "Open the application without granting camera access",
+      "Activate the experience",
+      "Observe the informational display"
+    ],
+    "expected": "The exhibition remains visible and provides informational content without relying on visitor detection."
+  }
+]
