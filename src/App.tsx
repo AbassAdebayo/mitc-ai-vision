@@ -66,6 +66,7 @@ function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const detectorRef = useRef<number | null>(null);
+  const cameraRestartTimerRef = useRef<number | null>(null);
   const lastTriggerRef = useRef(0);
   const presentationLockRef = useRef(false);
   const modeRef = useRef<Mode>('boot');
@@ -244,21 +245,84 @@ function App() {
 
   const startCamera = useCallback(async () => {
     if (!navigator.mediaDevices?.getUserMedia) return;
+
+    // Do not create another camera stream when the existing one is still alive.
+    const existingStream = streamRef.current;
+    const existingTrack = existingStream?.getVideoTracks()[0];
+
+    if (existingTrack?.readyState === 'live') {
+      if (videoRef.current && videoRef.current.srcObject !== existingStream) {
+        videoRef.current.srcObject = existingStream;
+
+        try {
+          await videoRef.current.play();
+        } catch {
+          // Browser may wait for playback permission.
+        }
+      }
+
+      setCameraReady(true);
+      return;
+    }
+
+    if (cameraRestartTimerRef.current !== null) {
+      window.clearTimeout(cameraRestartTimerRef.current);
+      cameraRestartTimerRef.current = null;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
+
       streamRef.current = stream;
+
+      const videoTrack = stream.getVideoTracks()[0];
+
+      if (videoTrack) {
+        videoTrack.onended = () => {
+          streamRef.current = null;
+          setCameraReady(false);
+
+          if (cameraRestartTimerRef.current === null) {
+            cameraRestartTimerRef.current = window.setTimeout(() => {
+              cameraRestartTimerRef.current = null;
+              void startCamera();
+            }, 1000);
+          }
+        };
+      }
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        try { await videoRef.current.play(); } catch { /* autoplay may wait for browser permission */ }
+
+        try {
+          await videoRef.current.play();
+        } catch {
+        }
       }
+
       previousPixelsRef.current = null;
       presenceStreakRef.current = 0;
       absenceStreakRef.current = 0;
       stablePresenceRef.current = false;
       wasPresenceRef.current = false;
+
       setCameraReady(true);
     } catch {
       setCameraReady(false);
+
+      if (cameraRestartTimerRef.current === null) {
+        cameraRestartTimerRef.current = window.setTimeout(() => {
+          cameraRestartTimerRef.current = null;
+          void startCamera();
+        }, 2000);
+      }
     }
   }, []);
 
@@ -290,9 +354,25 @@ function App() {
     return () => {
       window.clearTimeout(boot);
       window.clearTimeout(opening);
-      if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
+
+      if (cameraRestartTimerRef.current !== null) {
+        window.clearTimeout(cameraRestartTimerRef.current);
+        cameraRestartTimerRef.current = null;
+      }
+
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => {
+          track.onended = null;
+          track.stop();
+        });
+        streamRef.current = null;
+      }
+
       window.speechSynthesis?.cancel();
-      if (audioContextRef.current) void audioContextRef.current.close();
+
+      if (audioContextRef.current) {
+        void audioContextRef.current.close();
+      }
     };
   }, [setModeSafe, startCamera]);
 
