@@ -10,7 +10,7 @@ const instructors: Instructor[] = [
     {
         name: "QAA Abass Adebayo",
         role:
-            "Instructor-in-Charge, Software Engineering | Head of Department, Software Engineering / Web Design",
+            "Instructor-in-Charge, Software Engineering | Head of Department, Software Engineering / Web Design | Creator of the MITC Vision",
         image: "/images/abass-adebayo.jpg",
         alt: "Portrait of QAA Abass Adebayo",
     },
