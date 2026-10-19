@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Camera, CircleDot, Maximize, Radio, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { Camera, CircleDot, Languages, Maximize, Radio, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import DepartmentInstructors from "./components/DepartmentInstructors";
 
 type Mode = 'boot' | 'opening' | 'autonomous' | 'detected' | 'welcome' | 'performance';
 
 const hostLines = [
   'Welcome to MITC. I am MITC Vision, your digital exhibition host.',
+  'I was created on the 18th of October, 2026, at 1:15 in the morning, West Africa Time, also known as WAT. I was created by QAA Abass Adebayo, the Head of Department for Software Engineering and Web Design at Masroor International Technical College, Ilaro. I am MITC Vision, your digital exhibition host, designed to showcase our department\'s achievements, innovations, projects, and commitment to technology education.',
   'Choose your learning path: Software Engineering or Web Design.',
   'Software Engineering teaches you to design, build, test and improve real applications.',
   'You can work toward junior software development, .NET development, QA testing, or application support roles.',
@@ -26,6 +28,10 @@ const departmentPresentation = [
   { language: 'en-NG', text: 'The second choice is Web Design. This is a separate course for learners who want to create websites and digital experiences. You work with HTML, CSS, JavaScript, React and WordPress, alongside responsive design. You learn to build websites and interactive user interfaces that work well on phones and computers and help businesses, schools and organisations communicate online.' },
   { language: 'en-NG', text: 'Web Design can support pathways into junior web design, website development, WordPress site building, website maintenance, freelance projects and digital agency work. As with any career, opportunities depend on the quality of your work, your communication, your portfolio and your ability to keep learning. You choose Web Design because it is the path you want to pursue, not because it is compulsory alongside Software Engineering.' },
   { language: 'en-NG', text: 'Our approach is practical and supportive. Learners ask questions, build projects, practise debugging or design improvements, receive feedback and learn to explain their decisions. We want each learner to leave with useful skills, greater confidence and work they can demonstrate to a potential employer or client.' },
+  { language: 'en-NG', text: 'Today, the 29th of October, 2026, marks a historic milestone for the Software Engineering and Web Design Department at Masroor International Technical College, Ilaro. We proudly celebrate our first set of 25 graduands. During their training, our graduands individually developed practical projects, including an Automated Attendance System, the proposed MITC Official Registration Portal, the Ahmadiyya Mosque Locator, the proposed MITC Student Results and CGPA System, the proposed MITC Staff Automated Reporting System, e-commerce systems, and websites for schools and companies, among others. We are also proud that many of our students and graduands have secured scholarships to further develop their skills, while some have already secured employment with reputable organisations. These achievements demonstrate our commitment to practical learning, innovation, problem-solving, and preparing our students for the world of work.' },
+  { Language: 'en-NG', text: 'Additionally, Our students also participate in local and international hackathons, proudly representing Masroor International Technical College and demonstrating their creativity, teamwork, and problem-solving abilities.' },
+  { Language: 'en-NG', text: 'Our students also undertake the National Skills Qualification (NSQ) and pursue other globally recognised professional certifications, strengthening their technical competence and preparing them for opportunities in the local and international technology industry.' },
+  { language: 'en-NG', text: 'Behind these achievements are dedicated instructors who guide, mentor, and inspire our students. Ladies and gentlemen, meet the brains behind the Software Engineering and Web Design Department. First, Q A A, Abass Adebayo, the Instructor-in-Charge for Software Engineering and Head of Department for Software Engineering and Web Design. Next, Q A A Taofeek Adeiye, the Instructor-in-Charge for Web Design, specialising in WordPress. Together, they guide our learners in developing the technical skills, creativity, and confidence needed to succeed in the technology industry. Please join us in recognising our departmental instructors.' },
   { language: 'en-NG', text: 'So, which path sounds like you? Choose Software Engineering if you are curious about applications, logic, data and solving technical problems. Choose Web Design if you are excited by websites, visual structure and WordPress. Both paths can lead to meaningful opportunities when you practise consistently and build real projects. Please speak with our team, ask questions, and discover the course that suits you. Thank you for visiting MITC.' }
 ];
 
@@ -265,7 +271,7 @@ function App() {
       assemblyAudioRef.current.currentTime = 0;
     }
     assemblyAudioRef.current = audio;
-    void audio.play().catch(() => {});
+    void audio.play().catch(() => { });
   }, []);
 
   const activateExperience = useCallback(() => {
@@ -541,6 +547,83 @@ function App() {
         {mode === 'performance' && <p className="fact welcome-line">{presentationChapter || 'MITC Vision is introducing our mentoring approach, practical projects, Software Engineering, and Web Design with WordPress.'}</p>}
       </section>
 
+
+      {mode === 'performance' &&
+        presentationChapter.startsWith(
+          'Behind these achievements'
+        ) && (
+          <section
+            className="instructors-section"
+            aria-label="MITC departmental instructors"
+          >
+            <div className="instructors-kicker">
+              MITC ICT DEPARTMENT · MITC 1st Convocation
+            </div>
+
+            <h2>THE PEOPLE BEHIND THE PROGRESS</h2>
+
+            <p className="instructors-credential">
+              CERTIFIED QUALITY ASSURANCE ASSESSORS IN ICT
+            </p>
+
+            <div className="instructors-grid">
+              <article className="instructor-card">
+                <div className="instructor-photo">
+                  <img
+                    src="/images/abass-adebayo.jpg"
+                    alt="QAA Abass Adebayo"
+                  />
+                </div>
+
+                <div className="instructor-role">
+                  INSTRUCTOR-IN-CHARGE · SOFTWARE ENGINEERING
+                </div>
+
+                <h3>
+                  QAA
+                  <span>Abass Adebayo</span>
+                </h3>
+
+                <p>
+                  Head of Department — Software Engineering
+                  &amp; Web Design
+                </p>
+
+                <div className="instructor-seal">
+                  CERTIFIED QUALITY ASSURANCE ASSESSOR · ICT
+                </div>
+              </article>
+
+              <article className="instructor-card">
+                <div className="instructor-photo">
+                  <img
+                    src="/images/taofeek-adeiye.jpg"
+                    alt="QAA Taofeek Adeiye"
+                  />
+                </div>
+
+                <div className="instructor-role">
+                  INSTRUCTOR-IN-CHARGE · WEB DESIGN
+                </div>
+
+                <h3>
+                  QAA
+                  <span>Taofeek Adeiye</span>
+                </h3>
+
+                <p>Web Design Instructor — WordPress</p>
+
+                <div className="instructor-seal">
+                  CERTIFIED QUALITY ASSURANCE ASSESSOR · ICT
+                </div>
+              </article>
+            </div>
+          </section>
+        )}
+
+
+      <section className="host-stage" aria-label="MITC Vision digital hologram host"></section>
+
       <section className="host-stage" aria-label="MITC Vision digital hologram host">
         <div className="hologram-floor" />
         <div className="host-glow" />
@@ -599,7 +682,7 @@ function App() {
                 {showcaseTopic === 'api' && <div className="api-demo"><div className="api-node client-node"><span>01 / CLIENT</span><strong>Application</strong><small>Sends GET request</small></div><div className="api-transfer"><span>GET /api/courses</span><i>→ → →</i><span>200 OK</span></div><div className="api-node server-node"><span>02 / SERVER</span><strong>API Response</strong><small>JSON data returned</small></div><div className="api-json">{'{ "course": "Software Engineering", "status": "success" }'}</div></div>}
                 {showcaseTopic === 'ai' && <div className="ai-demo"><div className="ai-orb"><span>AI</span><i /><i /><i /><i /></div><div className="ai-steps"><span>01 · EXAMPLES</span><b /><span>02 · PATTERNS</span><b /><span>03 · PREDICTION</span></div><div className="ai-prediction"><small>ILLUSTRATIVE OUTPUT</small><strong>Consistent practice</strong><span>→ predicted progress: improving</span></div></div>}
               </div>
-              {showcaseTopic === 'web' ? <div className="live-coding-lab"><div className="live-coding-heading"><div><span>LIVE CODING WORKSPACE</span><strong>Edit the code, then run your own preview.</strong></div><button onClick={runLivePreview}>RUN LIVE PREVIEW ▶</button></div><div className="live-coding-editors"><label><span>HTML · STRUCTURE</span><textarea spellCheck={false} value={liveHtml} onChange={event => setLiveHtml(event.target.value)} aria-label="HTML editor" /></label><label><span>CSS · STYLE</span><textarea spellCheck={false} value={liveCss} onChange={event => setLiveCss(event.target.value)} aria-label="CSS editor" /></label><label><span>JAVASCRIPT · INTERACTION</span><textarea spellCheck={false} value={liveJs} onChange={event => setLiveJs(event.target.value)} aria-label="JavaScript editor" /></label></div><div className="live-preview-heading"><span>LIVE OUTPUT PREVIEW</span><small>Runs in an isolated sandbox</small></div><iframe title="Live coding preview" className="live-coding-preview" sandbox="allow-scripts" srcDoc={livePreviewDocument} /></div> : <div className="showcase-code"><div><span>EXAMPLE CODE / CONCEPT</span><button onClick={() => { void navigator.clipboard?.writeText(activeShowcase.code).catch(() => {}); }}>COPY CODE</button></div><pre>{activeShowcase.code}</pre></div>}
+              {showcaseTopic === 'web' ? <div className="live-coding-lab"><div className="live-coding-heading"><div><span>LIVE CODING WORKSPACE</span><strong>Edit the code, then run your own preview.</strong></div><button onClick={runLivePreview}>RUN LIVE PREVIEW ▶</button></div><div className="live-coding-editors"><label><span>HTML · STRUCTURE</span><textarea spellCheck={false} value={liveHtml} onChange={event => setLiveHtml(event.target.value)} aria-label="HTML editor" /></label><label><span>CSS · STYLE</span><textarea spellCheck={false} value={liveCss} onChange={event => setLiveCss(event.target.value)} aria-label="CSS editor" /></label><label><span>JAVASCRIPT · INTERACTION</span><textarea spellCheck={false} value={liveJs} onChange={event => setLiveJs(event.target.value)} aria-label="JavaScript editor" /></label></div><div className="live-preview-heading"><span>LIVE OUTPUT PREVIEW</span><small>Runs in an isolated sandbox</small></div><iframe title="Live coding preview" className="live-coding-preview" sandbox="allow-scripts" srcDoc={livePreviewDocument} /></div> : <div className="showcase-code"><div><span>EXAMPLE CODE / CONCEPT</span><button onClick={() => { void navigator.clipboard?.writeText(activeShowcase.code).catch(() => { }); }}>COPY CODE</button></div><pre>{activeShowcase.code}</pre></div>}
             </div>
             <div className="showcase-footer"><span>ICT | SOFTWARE ENGINEERING / WEB DESIGN</span><button onClick={() => { window.speechSynthesis?.cancel(); setIsSpeaking(false); setShowcaseOpen(false); }}>RETURN TO MITC VISION</button></div>
           </div>
