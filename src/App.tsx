@@ -66,6 +66,7 @@ function App() {
   const streamRef = useRef<MediaStream | null>(null);
   const detectorRef = useRef<number | null>(null);
   const cameraRestartTimerRef = useRef<number | null>(null);
+  const cameraRequestRef = useRef<Promise<void> | null>(null);
   const lastTriggerRef = useRef(0);
   const presentationLockRef = useRef(false);
   const modeRef = useRef<Mode>('boot');
@@ -245,18 +246,33 @@ function App() {
   const startCamera = useCallback(async () => {
     if (!navigator.mediaDevices?.getUserMedia) return;
 
-    // Do not create another camera stream when the existing one is still alive.
+    // Reuse an already-live camera stream.
     const existingStream = streamRef.current;
     const existingTrack = existingStream?.getVideoTracks()[0];
 
     if (existingTrack?.readyState === 'live') {
       if (videoRef.current && videoRef.current.srcObject !== existingStream) {
         videoRef.current.srcObject = existingStream;
+      }
 
+      const video = videoRef.current;
+
+      if (video) {
         try {
-          await videoRef.current.play();
+          await video.play();
         } catch {
-          // Browser may wait for playback permission.
+
+        }
+
+        if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+          await new Promise<void>((resolve) => {
+            const handleReady = () => {
+              video.removeEventListener('loadeddata', handleReady);
+              resolve();
+            };
+
+            video.addEventListener('loadeddata', handleReady, { once: true });
+          });
         }
       }
 
@@ -264,63 +280,95 @@ function App() {
       return;
     }
 
-    if (cameraRestartTimerRef.current !== null) {
-      window.clearTimeout(cameraRestartTimerRef.current);
-      cameraRestartTimerRef.current = null;
+    // If another camera request is already in progress,
+    // wait for it instead of opening another stream.
+    if (cameraRequestRef.current) {
+      await cameraRequestRef.current;
+      return;
     }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      });
+    const request = (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
 
-      streamRef.current = stream;
+        streamRef.current = stream;
 
-      const videoTrack = stream.getVideoTracks()[0];
+        const videoTrack = stream.getVideoTracks()[0];
 
-      if (videoTrack) {
-        videoTrack.onended = () => {
-          streamRef.current = null;
+        if (videoTrack) {
+          videoTrack.onended = () => {
+            streamRef.current = null;
+            setCameraReady(false);
+
+            if (cameraRestartTimerRef.current === null) {
+              cameraRestartTimerRef.current = window.setTimeout(() => {
+                cameraRestartTimerRef.current = null;
+                void startCamera();
+              }, 1000);
+            }
+          };
+        }
+
+        const video = videoRef.current;
+
+        if (!video) {
           setCameraReady(false);
+          return;
+        }
 
-          if (cameraRestartTimerRef.current === null) {
-            cameraRestartTimerRef.current = window.setTimeout(() => {
-              cameraRestartTimerRef.current = null;
-              void startCamera();
-            }, 1000);
-          }
-        };
-      }
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        video.srcObject = stream;
 
         try {
-          await videoRef.current.play();
+          await video.play();
         } catch {
+
+        }
+
+        if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+          await new Promise<void>((resolve) => {
+            const handleReady = () => {
+              video.removeEventListener('loadeddata', handleReady);
+              resolve();
+            };
+
+            video.addEventListener('loadeddata', handleReady, { once: true });
+          });
+        }
+
+        previousPixelsRef.current = null;
+        presenceStreakRef.current = 0;
+        absenceStreakRef.current = 0;
+        stablePresenceRef.current = false;
+        wasPresenceRef.current = false;
+
+        setCameraReady(true);
+      } catch {
+        streamRef.current = null;
+        setCameraReady(false);
+
+        if (cameraRestartTimerRef.current === null) {
+          cameraRestartTimerRef.current = window.setTimeout(() => {
+            cameraRestartTimerRef.current = null;
+            void startCamera();
+          }, 2000);
         }
       }
+    })();
 
-      previousPixelsRef.current = null;
-      presenceStreakRef.current = 0;
-      absenceStreakRef.current = 0;
-      stablePresenceRef.current = false;
-      wasPresenceRef.current = false;
+    cameraRequestRef.current = request;
 
-      setCameraReady(true);
-    } catch {
-      setCameraReady(false);
-
-      if (cameraRestartTimerRef.current === null) {
-        cameraRestartTimerRef.current = window.setTimeout(() => {
-          cameraRestartTimerRef.current = null;
-          void startCamera();
-        }, 2000);
+    try {
+      await request;
+    } finally {
+      if (cameraRequestRef.current === request) {
+        cameraRequestRef.current = null;
       }
     }
   }, []);
